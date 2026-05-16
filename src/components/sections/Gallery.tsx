@@ -5,12 +5,12 @@ import { useState } from "react";
 import Image from "next/image";
 
 const images = [
-  { id: 1, src: "https://images.unsplash.com/photo-1518199266791-5375a83190b7", caption: "Every moment is a gift" },
-  { id: 2, src: "https://images.unsplash.com/photo-1516589174184-c685266e430c", caption: "Your smile is my favorite view" },
-  { id: 3, src: "https://images.unsplash.com/photo-1522673607200-1648832cee98", caption: "Holding your hand, always" },
-  { id: 4, src: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7", caption: "To my Madamji, with love" },
-  { id: 5, src: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70", caption: "Our forever story" },
-  { id: 6, src: "https://images.unsplash.com/photo-1494774157365-9e04c6720e47", caption: "Thinking of you, Kuchu" },
+  { id: 1, src: "/images/memory1.jpg", caption: "Every moment with you is a gift, Kuchu" },
+  { id: 2, src: "/images/memory2.jpg", caption: "Your smile is my favorite view, Madamji" },
+  { id: 3, src: "/images/memory3.jpg", caption: "Holding your hand, always and forever" },
+  { id: 4, src: "/images/memory1.jpg", caption: "Thinking of you, my Phuchku" },
+  { id: 5, src: "/images/memory2.jpg", caption: "Our forever story begins here" },
+  { id: 6, src: "/images/memory3.jpg", caption: "Captured memories of us" },
 ];
 
 export default function Gallery() {
