@@ -4,7 +4,11 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { TIMELINE_MOMENTS } from "@/constants/content";
 
-export default function Timeline() {
+interface TimelineProps {
+  moments?: Array<{ date: string; title: string; description: string }>;
+}
+
+export default function Timeline({ moments = [] }: TimelineProps) {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -17,16 +21,18 @@ export default function Timeline() {
     restDelta: 0.001,
   });
 
+  const displayMoments = moments.length > 0 ? moments : TIMELINE_MOMENTS;
+
   return (
-    <section ref={containerRef} className="py-24 bg-deep-purple relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />
+    <section ref={containerRef} className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-20">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            className="text-4xl md:text-6xl font-serif text-white mb-4"
+            className="text-4xl md:text-6xl font-serif text-foreground mb-4"
           >
             Our Story Timeline
           </motion.h2>
@@ -37,11 +43,11 @@ export default function Timeline() {
           {/* Vertical Progress Line */}
           <motion.div
             style={{ scaleY }}
-            className="absolute left-1/2 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary via-secondary to-rose-gold origin-top rounded-full hidden md:block"
+            className="absolute left-1/2 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary via-secondary to-accent origin-top rounded-full hidden md:block"
           />
 
           <div className="space-y-24">
-            {TIMELINE_MOMENTS.map((moment, index) => (
+            {displayMoments.map((moment, index) => (
               <TimelineItem key={index} moment={moment} index={index} />
             ))}
           </div>
@@ -63,7 +69,7 @@ function TimelineItem({ moment, index }: { moment: any; index: number }) {
         initial={{ scale: 0 }}
         whileInView={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        className="w-10 h-10 rounded-full bg-white border-4 border-primary z-20 flex items-center justify-center shadow-[0_0_20px_rgba(255,77,109,0.5)]"
+        className="w-10 h-10 rounded-full bg-background border-4 border-primary z-20 flex items-center justify-center shadow-[0_0_20px_rgba(255,77,109,0.5)]"
       >
         <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
       </motion.div>
@@ -75,13 +81,13 @@ function TimelineItem({ moment, index }: { moment: any; index: number }) {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="w-full md:w-[45%] mt-8 md:mt-0"
       >
-        <div className="glass p-8 rounded-3xl relative overflow-hidden group hover:bg-white/10 transition-colors duration-500">
-          <span className="text-rose-gold text-sm font-bold tracking-widest uppercase mb-2 block">{moment.date}</span>
-          <h3 className="text-2xl font-serif text-white mb-4 group-hover:text-primary transition-colors">{moment.title}</h3>
-          <p className="text-lavender/70 leading-relaxed font-sans">{moment.description}</p>
+        <div className="glass p-8 rounded-3xl relative overflow-hidden group hover:bg-foreground/5 transition-colors duration-500">
+          <span className="text-primary text-sm font-bold tracking-widest uppercase mb-2 block">{moment.date}</span>
+          <h3 className="text-2xl font-serif text-foreground mb-4 group-hover:text-primary transition-colors">{moment.title}</h3>
+          <p className="text-foreground/70 leading-relaxed font-sans">{moment.description}</p>
           
           {/* Subtle heart icon bottom right */}
-          <div className="absolute bottom-4 right-4 text-primary/20 group-hover:text-primary/40 transition-colors">
+          <div className="absolute bottom-4 right-4 text-primary/20 group-hover:text-primary/45 transition-colors">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>

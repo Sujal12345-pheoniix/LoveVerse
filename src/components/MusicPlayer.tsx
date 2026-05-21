@@ -2,9 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 
-export default function MusicPlayer() {
+interface MusicPlayerProps {
+  musicUrl?: string;
+  musicMood?: string;
+}
+
+export default function MusicPlayer({
+  musicUrl = "/Saawal.mp3",
+  musicMood = "Romantic Instrumental"
+}: MusicPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -14,11 +22,23 @@ export default function MusicPlayer() {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        audioRef.current.play().catch(err => {
+          console.warn("Audio play blocked by browser. User interaction required:", err);
+        });
       }
       setIsPlaying(!isPlaying);
     }
   };
+
+  useEffect(() => {
+    // Reset play state if musicUrl changes
+    if (audioRef.current) {
+      audioRef.current.load();
+      if (isPlaying) {
+        audioRef.current.play().catch(() => setIsPlaying(false));
+      }
+    }
+  }, [musicUrl]);
 
   return (
     <div
@@ -29,14 +49,15 @@ export default function MusicPlayer() {
       <audio
         ref={audioRef}
         loop
-        src="/Saawal.mp3" // Fallback romantic instrumental
+        src={musicUrl}
       />
 
       <motion.button
         onClick={togglePlay}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className="glass w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl relative overflow-hidden"
+        className="glass w-14 h-14 rounded-full flex items-center justify-center text-foreground shadow-xl relative overflow-hidden"
+        aria-label={isPlaying ? "Pause music" : "Play music"}
       >
         <AnimatePresence mode="wait">
           {isPlaying ? (
@@ -46,7 +67,7 @@ export default function MusicPlayer() {
               animate={{ opacity: 1, rotate: 0 }}
               exit={{ opacity: 0, rotate: 90 }}
             >
-              <Pause size={24} />
+              <Pause size={24} className="text-primary" />
             </motion.div>
           ) : (
             <motion.div
@@ -55,7 +76,7 @@ export default function MusicPlayer() {
               animate={{ opacity: 1, rotate: 0 }}
               exit={{ opacity: 0, rotate: 90 }}
             >
-              <Play size={24} className="ml-1" />
+              <Play size={24} className="ml-1 text-primary animate-pulse" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -81,9 +102,9 @@ export default function MusicPlayer() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="glass px-4 py-2 rounded-full text-white text-xs font-bold tracking-widest uppercase"
+            className="glass px-4 py-2 rounded-full text-foreground text-xs font-bold tracking-widest uppercase border border-foreground/5"
           >
-            {isPlaying ? "Romantic Instrumental" : "Play Music"}
+            {isPlaying ? musicMood : "Play Music"}
           </motion.div>
         )}
       </AnimatePresence>

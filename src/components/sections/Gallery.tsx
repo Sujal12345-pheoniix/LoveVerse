@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
 
-const images = [
+const defaultImages = [
   { id: 1, src: "/images/memory1.jpg", caption: "Every moment with you is a gift, Kuchu" },
   { id: 2, src: "/images/memory2.jpg", caption: "Your smile is my favorite view, Madamji" },
   { id: 3, src: "/images/memory3.jpg", caption: "Holding your hand, always and forever" },
@@ -13,9 +13,17 @@ const images = [
   { id: 6, src: "/images/memory3.jpg", caption: "Captured memories of us" },
 ];
 
-export default function Gallery() {
+interface GalleryProps {
+  photos?: Array<{ src: string; caption: string }>;
+}
+
+export default function Gallery({ photos = [] }: GalleryProps) {
+  const displayImages = photos.length > 0
+    ? photos.map((p, idx) => ({ id: idx, src: p.src, caption: p.caption }))
+    : defaultImages;
+
   return (
-    <section id="gallery" className="py-24 bg-[#fff5f5] overflow-hidden">
+    <section id="gallery" className="py-24 bg-background text-foreground overflow-hidden transition-colors duration-500">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -24,12 +32,12 @@ export default function Gallery() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-6xl font-serif text-deep-purple mb-4">Captured Moments</h2>
-          <p className="text-rose-gold font-serif italic text-xl">"A picture is worth a thousand words, but ours tell a whole story."</p>
+          <h2 className="text-4xl md:text-6xl font-serif text-foreground mb-4">Captured Moments</h2>
+          <p className="text-primary font-serif italic text-xl">"A picture is worth a thousand words, but ours tell a whole story."</p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-8 relative h-[600px] md:h-[800px] mt-10">
-          {images.map((img, index) => (
+        <div className="flex flex-wrap justify-center gap-8 relative min-h-[600px] md:min-h-[800px] mt-10">
+          {displayImages.map((img, index) => (
             <PhotoCard key={img.id} img={img} index={index} />
           ))}
         </div>

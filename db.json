@@ -1,0 +1,125 @@
+{
+  "users": [
+    {
+      "id": "admin-uuid",
+      "email": "admin@loveverse.app",
+      "passwordHash": "a534571adcb5c3bbd44be8060de95dfad73f1ff7a2ccb03db4b830d1d23485c2",
+      "name": "LoveVerse Admin",
+      "plan": "ultra",
+      "createdAt": "2026-05-21T18:44:13.521Z"
+    },
+    {
+      "id": "demo-user-uuid",
+      "email": "demo@loveverse.app",
+      "passwordHash": "7b489d81d24cf4e723048995326778f56ef42a033c4f9ebbf6f685c2c77174db",
+      "name": "Sujal & Ananya",
+      "plan": "premium",
+      "createdAt": "2026-05-21T18:44:13.552Z"
+    },
+    {
+      "email": "sujal@loveverse.app",
+      "passwordHash": "8982dc5733c925a7dc75adf499a530622dbe9a82db312887f48e8e9e263f02ac",
+      "name": "Sujal Dev",
+      "id": "user-4p88usqnz",
+      "plan": "premium",
+      "createdAt": "2026-05-21T18:51:11.982Z"
+    }
+  ],
+  "stories": [
+    {
+      "id": "demo-story-id",
+      "slug": "sujal-ananya",
+      "userId": "demo-user-uuid",
+      "partnerA": "Sujal",
+      "partnerB": "Ananya",
+      "relationshipTitle": "Our Infinite Symphony",
+      "anniversaryDate": "2024-10-18",
+      "theme": "galaxy-love",
+      "musicMood": "dreamy",
+      "musicUrl": "/Saawal.mp3",
+      "loveLetter": "My dearest Ananya,\n\nI spent so many nights thinking about how to show you how much you mean to me. This little corner of the internet is just a small reflection of the universe of love I have for you.\n\nFrom the first time we talked to our latest laugh, every second with you feels like a beautiful dream I never want to wake up from. You are my Maalikn, my best friend, and my greatest adventure.\n\nI call you Kuchu, Phuchku, and everything in between, but most of all, I call you mine. Thank you for being you, for your kindness, and for choosing me every single day.\n\nI love you more than words can ever say.\n\nAlways yours,\nSujal",
+      "whyILoveYou": [
+        {
+          "title": "Your Smile",
+          "description": "It lights up my whole world and makes every problem disappear, my sweet Kuchu.",
+          "icon": "Heart"
+        },
+        {
+          "title": "Your Kindness",
+          "description": "The way you care for everyone around you is truly inspiring, Madamji.",
+          "icon": "Sun"
+        },
+        {
+          "title": "Your Support",
+          "description": "You're always there for me, my biggest cheerleader and best friend, Maalikn.",
+          "icon": "Stars"
+        },
+        {
+          "title": "Your Laugh",
+          "description": "The most beautiful melody I've ever heard. It's contagious, Phuchku!",
+          "icon": "Music"
+        },
+        {
+          "title": "Your Presence",
+          "description": "Just being near you makes everything feel right and peaceful, my dear Kuchu.",
+          "icon": "Cloud"
+        },
+        {
+          "title": "Your Strength",
+          "description": "You handle everything with such grace and courage, Madamji. I'm so proud of you.",
+          "icon": "Shield"
+        }
+      ],
+      "moments": [
+        {
+          "date": "Oct 18, 2023",
+          "title": "The First Gaze",
+          "description": "Where it all started. Little did I know how much you'd mean to me, Kuchu."
+        },
+        {
+          "date": "Dec 25, 2023",
+          "title": "First Laugh Together",
+          "description": "That moment I realized we had something truly special, Madamji."
+        },
+        {
+          "date": "Feb 14, 2024",
+          "title": "First Photo Together",
+          "description": "Capturing a moment that will stay in my heart forever, Maalikn."
+        },
+        {
+          "date": "Ongoing",
+          "title": "Countless Memories",
+          "description": "Every day with you is a new favorite memory, Phuchku. I love you!"
+        }
+      ],
+      "photos": [
+        {
+          "src": "/images/memory1.jpg",
+          "caption": "Every moment with you is a gift, Kuchu"
+        },
+        {
+          "src": "/images/memory2.jpg",
+          "caption": "Your smile is my favorite view, Madamji"
+        },
+        {
+          "src": "/images/memory3.jpg",
+          "caption": "Holding your hand, always and forever"
+        },
+        {
+          "src": "/images/memory1.jpg",
+          "caption": "Thinking of you, my Phuchku"
+        },
+        {
+          "src": "/images/memory2.jpg",
+          "caption": "Our forever story begins here"
+        },
+        {
+          "src": "/images/memory3.jpg",
+          "caption": "Captured memories of us"
+        }
+      ],
+      "views": 142,
+      "createdAt": "2026-05-21T18:44:13.552Z"
+    }
+  ]
+}

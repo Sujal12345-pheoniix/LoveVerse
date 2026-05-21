@@ -4,11 +4,17 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { WHY_I_LOVE_YOU } from "@/constants/content";
 import * as LucideIcons from "lucide-react";
 
-export default function WhyILoveYou() {
+interface WhyILoveYouProps {
+  reasons?: Array<{ title: string; description: string; icon: string }>;
+}
+
+export default function WhyILoveYou({ reasons = [] }: WhyILoveYouProps) {
+  const displayReasons = reasons.length > 0 ? reasons : WHY_I_LOVE_YOU;
+
   return (
-    <section className="py-24 night-gradient relative overflow-hidden">
+    <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
       {/* Background Particles */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
+      <div className="absolute inset-0 opacity-15 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
@@ -28,7 +34,7 @@ export default function WhyILoveYou() {
               ease: "linear",
               delay: Math.random() * 5
             }}
-            className="absolute text-white"
+            className="absolute text-primary"
           >
             ❤
           </motion.div>
@@ -40,15 +46,15 @@ export default function WhyILoveYou() {
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-serif text-white mb-4"
+            className="text-4xl md:text-6xl font-serif text-foreground mb-4"
           >
             Why I Love You
           </motion.h2>
-          <p className="text-lavender/60 tracking-widest uppercase text-sm">Just a few of the million reasons</p>
+          <p className="text-primary tracking-widest uppercase text-sm font-semibold">Just a few of the million reasons</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {WHY_I_LOVE_YOU.map((reason, index) => (
+          {displayReasons.map((reason, index) => (
             <ReasonCard key={index} reason={reason} />
           ))}
         </div>
@@ -104,11 +110,11 @@ function ReasonCard({ reason }: { reason: any }) {
         style={{ transform: "translateZ(50px)" }}
         className="flex flex-col items-center text-center h-full justify-center"
       >
-        <div className="mb-4 p-4 rounded-full bg-white/10 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+        <div className="mb-4 p-4 rounded-full bg-foreground/10 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500">
           <IconComponent size={32} />
         </div>
-        <h3 className="text-xl font-serif text-white mb-2">{reason.title}</h3>
-        <p className="text-lavender/70 text-sm leading-relaxed">{reason.description}</p>
+        <h3 className="text-xl font-serif text-foreground mb-2">{reason.title}</h3>
+        <p className="text-foreground/75 text-sm leading-relaxed">{reason.description}</p>
       </div>
     </motion.div>
   );
