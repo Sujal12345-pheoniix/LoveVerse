@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { InputJsonValue, JsonValue } from "@prisma/client/runtime/client";
 import { getPrisma } from "./prisma";
 
 export type UserPlan = "free" | "premium" | "ultra";
@@ -52,9 +52,9 @@ type StoryRecord = {
   musicMood: string;
   musicUrl: string | null;
   loveLetter: string;
-  whyILoveYou: Prisma.JsonValue;
-  moments: Prisma.JsonValue;
-  photos: Prisma.JsonValue;
+  whyILoveYou: JsonValue;
+  moments: JsonValue;
+  photos: JsonValue;
   views: number;
   createdAt: Date;
 };
@@ -176,9 +176,9 @@ export const db = {
           musicMood: story.musicMood,
           musicUrl: story.musicUrl ?? null,
           loveLetter: story.loveLetter,
-          whyILoveYou: story.whyILoveYou as Prisma.InputJsonValue,
-          moments: story.moments as Prisma.InputJsonValue,
-          photos: story.photos as Prisma.InputJsonValue,
+          whyILoveYou: story.whyILoveYou as InputJsonValue,
+          moments: story.moments as InputJsonValue,
+          photos: story.photos as InputJsonValue,
           views: 0,
         },
       });
@@ -196,9 +196,9 @@ export const db = {
         data: {
           ...storyData,
           musicUrl: storyData.musicUrl ?? null,
-          whyILoveYou: storyData.whyILoveYou as Prisma.InputJsonValue | undefined,
-          moments: storyData.moments as Prisma.InputJsonValue | undefined,
-          photos: storyData.photos as Prisma.InputJsonValue | undefined,
+          whyILoveYou: storyData.whyILoveYou as InputJsonValue | undefined,
+          moments: storyData.moments as InputJsonValue | undefined,
+          photos: storyData.photos as InputJsonValue | undefined,
         },
       });
       return mapStory(updated);
