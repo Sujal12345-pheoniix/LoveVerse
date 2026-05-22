@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "./prisma";
+import { getPrisma } from "./prisma";
 
 export type UserPlan = "free" | "premium" | "ultra";
 
@@ -94,20 +94,24 @@ function mapStory(story: StoryRecord): LoveStory {
 export const db = {
   users: {
     findMany: async () => {
+      const prisma = getPrisma();
       const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
       return users.map(mapUser);
     },
     findByEmail: async (email: string) => {
+      const prisma = getPrisma();
       const user = await prisma.user.findFirst({
         where: { email: { equals: email, mode: "insensitive" } },
       });
       return user ? mapUser(user) : null;
     },
     findById: async (id: string) => {
+      const prisma = getPrisma();
       const user = await prisma.user.findUnique({ where: { id } });
       return user ? mapUser(user) : null;
     },
     create: async (user: Omit<User, "id" | "createdAt" | "plan">) => {
+      const prisma = getPrisma();
       const created = await prisma.user.create({
         data: {
           email: user.email,
@@ -119,6 +123,7 @@ export const db = {
       return mapUser(created);
     },
     updatePlan: async (id: string, plan: UserPlan) => {
+      const prisma = getPrisma();
       const existing = await prisma.user.findUnique({ where: { id } });
       if (!existing) {
         return null;
@@ -133,20 +138,24 @@ export const db = {
   },
   stories: {
     findMany: async () => {
+      const prisma = getPrisma();
       const stories = await prisma.loveStory.findMany({ orderBy: { createdAt: "desc" } });
       return stories.map(mapStory);
     },
     findBySlug: async (slug: string) => {
+      const prisma = getPrisma();
       const story = await prisma.loveStory.findFirst({
         where: { slug: { equals: slug, mode: "insensitive" } },
       });
       return story ? mapStory(story) : null;
     },
     findById: async (id: string) => {
+      const prisma = getPrisma();
       const story = await prisma.loveStory.findUnique({ where: { id } });
       return story ? mapStory(story) : null;
     },
     findByUserId: async (userId: string) => {
+      const prisma = getPrisma();
       const stories = await prisma.loveStory.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
@@ -154,6 +163,7 @@ export const db = {
       return stories.map(mapStory);
     },
     create: async (story: Omit<LoveStory, "id" | "createdAt" | "views">) => {
+      const prisma = getPrisma();
       const created = await prisma.loveStory.create({
         data: {
           slug: story.slug,
@@ -175,6 +185,7 @@ export const db = {
       return mapStory(created);
     },
     update: async (id: string, storyData: Partial<Omit<LoveStory, "id" | "createdAt" | "views" | "userId">>) => {
+      const prisma = getPrisma();
       const existing = await prisma.loveStory.findUnique({ where: { id } });
       if (!existing) {
         return null;
@@ -193,14 +204,18 @@ export const db = {
       return mapStory(updated);
     },
     delete: async (id: string) => {
+      const prisma = getPrisma();
       const result = await prisma.loveStory.deleteMany({ where: { id } });
       return result.count > 0;
     },
     incrementViews: async (slug: string) => {
-      await prisma.loveStory.update({
-        where: { slug },
-        data: { views: { increment: 1 } },
-      }).catch(() => null);
+      const prisma = getPrisma();
+      await prisma.loveStory
+        .update({
+          where: { slug },
+          data: { views: { increment: 1 } },
+        })
+        .catch(() => null);
     },
   },
 };

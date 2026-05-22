@@ -19,16 +19,15 @@ function base64UrlEncode(str: string): string {
   return Buffer.from(str)
     .toString("base64")
     .replace(/=/g, "")
-
-  interface SessionPayload {
-    userId?: string;
-    exp?: number;
-    [key: string]: unknown;
-  }
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
-  export function verifySessionToken(token: string): SessionPayload | null {
+}
 
+interface SessionPayload {
+  userId?: string;
+  exp?: number;
+  [key: string]: unknown;
+}
 function base64UrlDecode(str: string): string {
   let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
   while (base64.length % 4) {
