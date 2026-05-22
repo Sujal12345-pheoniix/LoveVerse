@@ -17,6 +17,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "To My Beautiful Kuchu | A Love Story",
   description: "A digital scrapbook and love letter dedicated to the most amazing girl in the world.",
+  icons: {
+    icon: "/love.png",
+  },
 };
 
 export default function RootLayout({
