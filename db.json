@@ -23,6 +23,14 @@
       "id": "user-4p88usqnz",
       "plan": "premium",
       "createdAt": "2026-05-21T18:51:11.982Z"
+    },
+    {
+      "email": "sujalreal983@gmail.com",
+      "passwordHash": "5d539769b040ff2411f3386892cc1edd6a64808aa2265ac6d003562ce763ca6b",
+      "name": "Admin User",
+      "id": "user-5t1s8fbfd",
+      "plan": "free",
+      "createdAt": "2026-05-22T07:13:26.501Z"
     }
   ],
   "stories": [

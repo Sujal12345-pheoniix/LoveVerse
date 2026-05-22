@@ -1,13 +1,17 @@
 "use server";
 
-import { db, User, LoveStory } from "@/lib/db";
+import { db } from "@/lib/db";
 import { hashPassword, setSession, clearSession, getSessionUser } from "@/lib/auth";
 import { generateLoveStory, generatePoeticCaption, suggestMusicMood } from "@/lib/gemini";
 import { revalidatePath } from "next/cache";
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 // ----------------- AUTH ACTIONS -----------------
 
-export async function signupAction(prevState: any, formData: FormData) {
+export async function signupAction(_prevState: unknown, formData: FormData) {
   try {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -17,13 +21,13 @@ export async function signupAction(prevState: any, formData: FormData) {
       return { success: false, error: "Please fill out all fields." };
     }
 
-    const existingUser = db.users.findByEmail(email);
+    const existingUser = await db.users.findByEmail(email);
     if (existingUser) {
       return { success: false, error: "An account with this email already exists." };
     }
 
     const passwordHash = hashPassword(password);
-    const newUser = db.users.create({
+    const newUser = await db.users.create({
       email,
       passwordHash,
       name,
@@ -31,12 +35,12 @@ export async function signupAction(prevState: any, formData: FormData) {
 
     await setSession(newUser.id);
     return { success: true, user: { id: newUser.id, email: newUser.email, name: newUser.name } };
-  } catch (error: any) {
-    return { success: false, error: error.message || "An unexpected error occurred." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "An unexpected error occurred.") };
   }
 }
 
-export async function loginAction(prevState: any, formData: FormData) {
+export async function loginAction(_prevState: unknown, formData: FormData) {
   try {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -45,7 +49,7 @@ export async function loginAction(prevState: any, formData: FormData) {
       return { success: false, error: "Please enter email and password." };
     }
 
-    const user = db.users.findByEmail(email);
+    const user = await db.users.findByEmail(email);
     if (!user) {
       return { success: false, error: "Invalid email or password." };
     }
@@ -57,8 +61,8 @@ export async function loginAction(prevState: any, formData: FormData) {
 
     await setSession(user.id);
     return { success: true, user: { id: user.id, email: user.email, name: user.name } };
-  } catch (error: any) {
-    return { success: false, error: error.message || "An unexpected error occurred." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "An unexpected error occurred.") };
   }
 }
 
@@ -107,13 +111,13 @@ export async function createStoryAction(storyData: {
     }
 
     // Check slug uniqueness
-    const existing = db.stories.findBySlug(cleanSlug);
+    const existing = await db.stories.findBySlug(cleanSlug);
     if (existing) {
       return { success: false, error: `The link 'loveverse.app/${cleanSlug}' is already taken.` };
     }
 
     // Free plan constraints check (e.g. max 1 story, limited photos)
-    const userStories = db.stories.findByUserId(user.id);
+    const userStories = await db.stories.findByUserId(user.id);
     if (user.plan === "free" && userStories.length >= 1) {
       return {
         success: false,
@@ -121,7 +125,7 @@ export async function createStoryAction(storyData: {
       };
     }
 
-    const newStory = db.stories.create({
+    const newStory = await db.stories.create({
       ...storyData,
       slug: cleanSlug,
       userId: user.id
@@ -129,8 +133,8 @@ export async function createStoryAction(storyData: {
 
     revalidatePath("/dashboard");
     return { success: true, story: newStory };
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to create story." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "Failed to create story.") };
   }
 }
 
@@ -157,7 +161,7 @@ export async function updateStoryAction(
       return { success: false, error: "Unauthorized. Please log in." };
     }
 
-    const story = db.stories.findById(id);
+    const story = await db.stories.findById(id);
     if (!story) {
       return { success: false, error: "Story not found." };
     }
@@ -175,13 +179,13 @@ export async function updateStoryAction(
 
     // If slug changed, verify uniqueness
     if (cleanSlug !== story.slug) {
-      const existing = db.stories.findBySlug(cleanSlug);
+      const existing = await db.stories.findBySlug(cleanSlug);
       if (existing) {
         return { success: false, error: `The link 'loveverse.app/${cleanSlug}' is already taken.` };
       }
     }
 
-    const updated = db.stories.update(id, {
+    const updated = await db.stories.update(id, {
       ...storyData,
       slug: cleanSlug
     });
@@ -190,8 +194,8 @@ export async function updateStoryAction(
     revalidatePath(`/story/${cleanSlug}`);
     revalidatePath(`/story/${story.slug}`);
     return { success: true, story: updated };
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to update story." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "Failed to update story.") };
   }
 }
 
@@ -202,7 +206,7 @@ export async function deleteStoryAction(id: string) {
       return { success: false, error: "Unauthorized. Please log in." };
     }
 
-    const story = db.stories.findById(id);
+    const story = await db.stories.findById(id);
     if (!story) {
       return { success: false, error: "Story not found." };
     }
@@ -211,20 +215,20 @@ export async function deleteStoryAction(id: string) {
       return { success: false, error: "Access denied." };
     }
 
-    const success = db.stories.delete(id);
+    const success = await db.stories.delete(id);
     revalidatePath("/dashboard");
     return { success };
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to delete story." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "Failed to delete story.") };
   }
 }
 
 export async function getStoryBySlug(slug: string) {
   try {
-    const story = db.stories.findBySlug(slug);
+    const story = await db.stories.findBySlug(slug);
     if (story) {
       // Increment views asynchronously/increment in db
-      db.stories.incrementViews(slug);
+      await db.stories.incrementViews(slug);
     }
     return story;
   } catch (error) {
@@ -236,7 +240,7 @@ export async function getUserStories() {
   try {
     const user = await getSessionUser();
     if (!user) return [];
-    return db.stories.findByUserId(user.id);
+    return await db.stories.findByUserId(user.id);
   } catch (error) {
     return [];
   }
@@ -247,11 +251,11 @@ export async function upgradePlanAction(plan: "free" | "premium" | "ultra") {
     const user = await getSessionUser();
     if (!user) return { success: false, error: "Please log in first." };
 
-    const updated = db.users.updatePlan(user.id, plan);
+    const updated = await db.users.updatePlan(user.id, plan);
     revalidatePath("/dashboard");
     return { success: true, plan: updated?.plan };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "Unable to load admin stats.") };
   }
 }
 
@@ -267,8 +271,8 @@ export async function generateStoryAiAction(input: {
   try {
     const text = await generateLoveStory(input);
     return { success: true, text };
-  } catch (error: any) {
-    return { success: false, error: error.message || "AI Generation failed." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "AI Generation failed.") };
   }
 }
 
@@ -280,8 +284,8 @@ export async function generateCaptionAiAction(input: {
   try {
     const text = await generatePoeticCaption(input);
     return { success: true, text };
-  } catch (error: any) {
-    return { success: false, error: error.message || "AI Caption generation failed." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "AI Caption generation failed.") };
   }
 }
 
@@ -293,8 +297,8 @@ export async function generateMusicMoodAiAction(input: {
   try {
     const data = await suggestMusicMood(input);
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message || "AI Music suggestion failed." };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "AI Music suggestion failed.") };
   }
 }
 
@@ -307,8 +311,8 @@ export async function getAdminStatsAction() {
       return { success: false, error: "Access denied." };
     }
 
-    const allUsers = db.users.findMany();
-    const allStories = db.stories.findMany();
+    const allUsers = await db.users.findMany();
+    const allStories = await db.stories.findMany();
 
     const premiumCount = allUsers.filter(u => u.plan === "premium").length;
     const ultraCount = allUsers.filter(u => u.plan === "ultra").length;
@@ -343,7 +347,7 @@ export async function getAdminStatsAction() {
         }))
       }
     };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error, "Unable to load admin stats.") };
   }
 }

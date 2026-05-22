@@ -1,15 +1,14 @@
-import fs from "fs";
-import path from "path";
+import { Prisma } from "@prisma/client";
+import { prisma } from "./prisma";
 
-// Define the database file path
-const DB_FILE = path.join(process.cwd(), "db.json");
+export type UserPlan = "free" | "premium" | "ultra";
 
 export interface User {
   id: string;
   email: string;
   passwordHash: string;
   name: string;
-  plan: "free" | "premium" | "ultra";
+  plan: UserPlan;
   createdAt: string;
 }
 
@@ -32,238 +31,176 @@ export interface LoveStory {
   createdAt: string;
 }
 
-interface DatabaseSchema {
-  users: User[];
-  stories: LoveStory[];
-}
-
-// Initial seed data
-const SEED_DATA: DatabaseSchema = {
-  users: [
-    {
-      id: "admin-uuid",
-      email: "admin@loveverse.app",
-      // sha256 hash for 'admin123' with salt 'loveverse-salt' is:
-      // a534571adcb5c3bbd44be8060de95dfad73f1ff7a2ccb03db4b830d1d23485c2 (using basic crypto)
-      // Let's use simple verification in auth.ts
-      passwordHash: "a534571adcb5c3bbd44be8060de95dfad73f1ff7a2ccb03db4b830d1d23485c2",
-      name: "LoveVerse Admin",
-      plan: "ultra",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "demo-user-uuid",
-      email: "demo@loveverse.app",
-      passwordHash: "7b489d81d24cf4e723048995326778f56ef42a033c4f9ebbf6f685c2c77174db", // 'demo123'
-      name: "Sujal & Ananya",
-      plan: "premium",
-      createdAt: new Date().toISOString(),
-    }
-  ],
-  stories: [
-    {
-      id: "demo-story-id",
-      slug: "sujal-ananya",
-      userId: "demo-user-uuid",
-      partnerA: "Sujal",
-      partnerB: "Ananya",
-      relationshipTitle: "Our Infinite Symphony",
-      anniversaryDate: "2024-10-18",
-      theme: "galaxy-love",
-      musicMood: "dreamy",
-      musicUrl: "/Saawal.mp3",
-      loveLetter: "My dearest Ananya,\n\nI spent so many nights thinking about how to show you how much you mean to me. This little corner of the internet is just a small reflection of the universe of love I have for you.\n\nFrom the first time we talked to our latest laugh, every second with you feels like a beautiful dream I never want to wake up from. You are my Maalikn, my best friend, and my greatest adventure.\n\nI call you Kuchu, Phuchku, and everything in between, but most of all, I call you mine. Thank you for being you, for your kindness, and for choosing me every single day.\n\nI love you more than words can ever say.\n\nAlways yours,\nSujal",
-      whyILoveYou: [
-        {
-          title: "Your Smile",
-          description: "It lights up my whole world and makes every problem disappear, my sweet Kuchu.",
-          icon: "Heart",
-        },
-        {
-          title: "Your Kindness",
-          description: "The way you care for everyone around you is truly inspiring, Madamji.",
-          icon: "Sun",
-        },
-        {
-          title: "Your Support",
-          description: "You're always there for me, my biggest cheerleader and best friend, Maalikn.",
-          icon: "Stars",
-        },
-        {
-          title: "Your Laugh",
-          description: "The most beautiful melody I've ever heard. It's contagious, Phuchku!",
-          icon: "Music",
-        },
-        {
-          title: "Your Presence",
-          description: "Just being near you makes everything feel right and peaceful, my dear Kuchu.",
-          icon: "Cloud",
-        },
-        {
-          title: "Your Strength",
-          description: "You handle everything with such grace and courage, Madamji. I'm so proud of you.",
-          icon: "Shield",
-        }
-      ],
-      moments: [
-        {
-          date: "Oct 18, 2023",
-          title: "The First Gaze",
-          description: "Where it all started. Little did I know how much you'd mean to me, Kuchu.",
-        },
-        {
-          date: "Dec 25, 2023",
-          title: "First Laugh Together",
-          description: "That moment I realized we had something truly special, Madamji.",
-        },
-        {
-          date: "Feb 14, 2024",
-          title: "First Photo Together",
-          description: "Capturing a moment that will stay in my heart forever, Maalikn.",
-        },
-        {
-          date: "Ongoing",
-          title: "Countless Memories",
-          description: "Every day with you is a new favorite memory, Phuchku. I love you!",
-        }
-      ],
-      photos: [
-        { src: "/images/memory1.jpg", caption: "Every moment with you is a gift, Kuchu" },
-        { src: "/images/memory2.jpg", caption: "Your smile is my favorite view, Madamji" },
-        { src: "/images/memory3.jpg", caption: "Holding your hand, always and forever" },
-        { src: "/images/memory1.jpg", caption: "Thinking of you, my Phuchku" },
-        { src: "/images/memory2.jpg", caption: "Our forever story begins here" },
-        { src: "/images/memory3.jpg", caption: "Captured memories of us" }
-      ],
-      views: 142,
-      createdAt: new Date().toISOString(),
-    }
-  ]
+type UserRecord = {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+  plan: UserPlan;
+  createdAt: Date;
 };
 
-// Helper to read database
-export function readDb(): DatabaseSchema {
-  try {
-    if (!fs.existsSync(DB_FILE)) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(SEED_DATA, null, 2), "utf-8");
-      return SEED_DATA;
-    }
-    const data = fs.readFileSync(DB_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error reading db file, returning seed data:", error);
-    return SEED_DATA;
-  }
+type StoryRecord = {
+  id: string;
+  slug: string;
+  userId: string;
+  partnerA: string;
+  partnerB: string;
+  relationshipTitle: string;
+  anniversaryDate: string;
+  theme: string;
+  musicMood: string;
+  musicUrl: string | null;
+  loveLetter: string;
+  whyILoveYou: Prisma.JsonValue;
+  moments: Prisma.JsonValue;
+  photos: Prisma.JsonValue;
+  views: number;
+  createdAt: Date;
+};
+
+function mapUser(user: UserRecord): User {
+  return {
+    id: user.id,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    name: user.name,
+    plan: user.plan,
+    createdAt: user.createdAt.toISOString(),
+  };
 }
 
-// Helper to write database
-export function writeDb(data: DatabaseSchema): boolean {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
-    return true;
-  } catch (error) {
-    console.error("Error writing to db file:", error);
-    return false;
-  }
+function mapStory(story: StoryRecord): LoveStory {
+  return {
+    id: story.id,
+    slug: story.slug,
+    userId: story.userId,
+    partnerA: story.partnerA,
+    partnerB: story.partnerB,
+    relationshipTitle: story.relationshipTitle,
+    anniversaryDate: story.anniversaryDate,
+    theme: story.theme,
+    musicMood: story.musicMood,
+    musicUrl: story.musicUrl ?? undefined,
+    loveLetter: story.loveLetter,
+    whyILoveYou: story.whyILoveYou as LoveStory["whyILoveYou"],
+    moments: story.moments as LoveStory["moments"],
+    photos: story.photos as LoveStory["photos"],
+    views: story.views,
+    createdAt: story.createdAt.toISOString(),
+  };
 }
 
-// Db operations matching standard queries
 export const db = {
   users: {
-    findMany: () => {
-      const store = readDb();
-      return store.users;
+    findMany: async () => {
+      const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
+      return users.map(mapUser);
     },
-    findByEmail: (email: string) => {
-      const store = readDb();
-      return store.users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+    findByEmail: async (email: string) => {
+      const user = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: "insensitive" } },
+      });
+      return user ? mapUser(user) : null;
     },
-    findById: (id: string) => {
-      const store = readDb();
-      return store.users.find(u => u.id === id) || null;
+    findById: async (id: string) => {
+      const user = await prisma.user.findUnique({ where: { id } });
+      return user ? mapUser(user) : null;
     },
-    create: (user: Omit<User, "id" | "createdAt" | "plan">) => {
-      const store = readDb();
-      const newUser: User = {
-        ...user,
-        id: `user-${Math.random().toString(36).substr(2, 9)}`,
-        plan: "free",
-        createdAt: new Date().toISOString()
-      };
-      store.users.push(newUser);
-      writeDb(store);
-      return newUser;
+    create: async (user: Omit<User, "id" | "createdAt" | "plan">) => {
+      const created = await prisma.user.create({
+        data: {
+          email: user.email,
+          passwordHash: user.passwordHash,
+          name: user.name,
+          plan: "free",
+        },
+      });
+      return mapUser(created);
     },
-    updatePlan: (id: string, plan: "free" | "premium" | "ultra") => {
-      const store = readDb();
-      const user = store.users.find(u => u.id === id);
-      if (user) {
-        user.plan = plan;
-        writeDb(store);
-        return user;
+    updatePlan: async (id: string, plan: UserPlan) => {
+      const existing = await prisma.user.findUnique({ where: { id } });
+      if (!existing) {
+        return null;
       }
-      return null;
-    }
+
+      const updated = await prisma.user.update({
+        where: { id },
+        data: { plan },
+      });
+      return mapUser(updated);
+    },
   },
   stories: {
-    findMany: () => {
-      const store = readDb();
-      return store.stories;
+    findMany: async () => {
+      const stories = await prisma.loveStory.findMany({ orderBy: { createdAt: "desc" } });
+      return stories.map(mapStory);
     },
-    findBySlug: (slug: string) => {
-      const store = readDb();
-      return store.stories.find(s => s.slug.toLowerCase() === slug.toLowerCase()) || null;
+    findBySlug: async (slug: string) => {
+      const story = await prisma.loveStory.findFirst({
+        where: { slug: { equals: slug, mode: "insensitive" } },
+      });
+      return story ? mapStory(story) : null;
     },
-    findById: (id: string) => {
-      const store = readDb();
-      return store.stories.find(s => s.id === id) || null;
+    findById: async (id: string) => {
+      const story = await prisma.loveStory.findUnique({ where: { id } });
+      return story ? mapStory(story) : null;
     },
-    findByUserId: (userId: string) => {
-      const store = readDb();
-      return store.stories.filter(s => s.userId === userId);
+    findByUserId: async (userId: string) => {
+      const stories = await prisma.loveStory.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      });
+      return stories.map(mapStory);
     },
-    create: (story: Omit<LoveStory, "id" | "createdAt" | "views">) => {
-      const store = readDb();
-      const newStory: LoveStory = {
-        ...story,
-        id: `story-${Math.random().toString(36).substr(2, 9)}`,
-        views: 0,
-        createdAt: new Date().toISOString()
-      };
-      store.stories.push(newStory);
-      writeDb(store);
-      return newStory;
+    create: async (story: Omit<LoveStory, "id" | "createdAt" | "views">) => {
+      const created = await prisma.loveStory.create({
+        data: {
+          slug: story.slug,
+          userId: story.userId,
+          partnerA: story.partnerA,
+          partnerB: story.partnerB,
+          relationshipTitle: story.relationshipTitle,
+          anniversaryDate: story.anniversaryDate,
+          theme: story.theme,
+          musicMood: story.musicMood,
+          musicUrl: story.musicUrl ?? null,
+          loveLetter: story.loveLetter,
+          whyILoveYou: story.whyILoveYou as Prisma.InputJsonValue,
+          moments: story.moments as Prisma.InputJsonValue,
+          photos: story.photos as Prisma.InputJsonValue,
+          views: 0,
+        },
+      });
+      return mapStory(created);
     },
-    update: (id: string, storyData: Partial<Omit<LoveStory, "id" | "createdAt" | "views" | "userId">>) => {
-      const store = readDb();
-      const index = store.stories.findIndex(s => s.id === id);
-      if (index !== -1) {
-        store.stories[index] = {
-          ...store.stories[index],
-          ...storyData
-        } as LoveStory;
-        writeDb(store);
-        return store.stories[index];
+    update: async (id: string, storyData: Partial<Omit<LoveStory, "id" | "createdAt" | "views" | "userId">>) => {
+      const existing = await prisma.loveStory.findUnique({ where: { id } });
+      if (!existing) {
+        return null;
       }
-      return null;
+
+      const updated = await prisma.loveStory.update({
+        where: { id },
+        data: {
+          ...storyData,
+          musicUrl: storyData.musicUrl ?? null,
+          whyILoveYou: storyData.whyILoveYou as Prisma.InputJsonValue | undefined,
+          moments: storyData.moments as Prisma.InputJsonValue | undefined,
+          photos: storyData.photos as Prisma.InputJsonValue | undefined,
+        },
+      });
+      return mapStory(updated);
     },
-    delete: (id: string) => {
-      const store = readDb();
-      const filtered = store.stories.filter(s => s.id !== id);
-      const isDeleted = filtered.length < store.stories.length;
-      if (isDeleted) {
-        store.stories = filtered;
-        writeDb(store);
-      }
-      return isDeleted;
+    delete: async (id: string) => {
+      const result = await prisma.loveStory.deleteMany({ where: { id } });
+      return result.count > 0;
     },
-    incrementViews: (slug: string) => {
-      const store = readDb();
-      const story = store.stories.find(s => s.slug.toLowerCase() === slug.toLowerCase());
-      if (story) {
-        story.views += 1;
-        writeDb(store);
-      }
-    }
-  }
+    incrementViews: async (slug: string) => {
+      await prisma.loveStory.update({
+        where: { slug },
+        data: { views: { increment: 1 } },
+      }).catch(() => null);
+    },
+  },
 };

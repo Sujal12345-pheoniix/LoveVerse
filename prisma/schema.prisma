@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserPlan {
+  free
+  premium
+  ultra
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  plan         UserPlan    @default(free)
+  createdAt    DateTime    @default(now())
+  stories      LoveStory[]
+}
+
+model LoveStory {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  userId            String
+  partnerA          String
+  partnerB          String
+  relationshipTitle String
+  anniversaryDate   String
+  theme             String
+  musicMood         String
+  musicUrl          String?
+  loveLetter        String
+  whyILoveYou       Json
+  moments           Json
+  photos            Json
+  views             Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}

@@ -19,9 +19,15 @@ function base64UrlEncode(str: string): string {
   return Buffer.from(str)
     .toString("base64")
     .replace(/=/g, "")
+
+  interface SessionPayload {
+    userId?: string;
+    exp?: number;
+    [key: string]: unknown;
+  }
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
-}
+  export function verifySessionToken(token: string): SessionPayload | null {
 
 function base64UrlDecode(str: string): string {
   let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -43,7 +49,7 @@ export function signSessionToken(payload: object): string {
 }
 
 // Custom JWT verify helper
-export function verifySessionToken(token: string): any {
+export function verifySessionToken(token: string): SessionPayload | null {
   try {
     const [header, data, signature] = token.split(".");
     if (!header || !data || !signature) return null;
@@ -55,12 +61,12 @@ export function verifySessionToken(token: string): any {
 
     if (signature !== expectedSignature) return null;
 
-    const payload = JSON.parse(base64UrlDecode(data));
+    const payload = JSON.parse(base64UrlDecode(data)) as SessionPayload;
     if (payload.exp && Date.now() > payload.exp) {
       return null; // Expired
     }
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -75,8 +81,8 @@ export async function getSessionUser(): Promise<User | null> {
     const payload = verifySessionToken(token);
     if (!payload || !payload.userId) return null;
 
-    return db.users.findById(payload.userId);
-  } catch (error) {
+    return await db.users.findById(payload.userId);
+  } catch {
     return null;
   }
 }

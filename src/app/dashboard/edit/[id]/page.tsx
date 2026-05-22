@@ -23,7 +23,7 @@ export default async function EditStoryPage({ params }: Props) {
   }
 
   // Retrieve the story by ID directly from server-side db client
-  const story = db.stories.findById(id);
+  const story = await db.stories.findById(id);
 
   if (!story) {
     notFound();
