@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import type { LoveStory, User } from "@/lib/db";
 import { hashPassword, setSession, clearSession, getSessionUser } from "@/lib/auth";
 import { generateLoveStory, generatePoeticCaption, suggestMusicMood } from "@/lib/gemini";
 import { revalidatePath } from "next/cache";
@@ -314,11 +315,11 @@ export async function getAdminStatsAction() {
     const allUsers = await db.users.findMany();
     const allStories = await db.stories.findMany();
 
-    const premiumCount = allUsers.filter(u => u.plan === "premium").length;
-    const ultraCount = allUsers.filter(u => u.plan === "ultra").length;
-    const freeCount = allUsers.filter(u => u.plan === "free").length;
+    const premiumCount = allUsers.filter((u: User) => u.plan === "premium").length;
+    const ultraCount = allUsers.filter((u: User) => u.plan === "ultra").length;
+    const freeCount = allUsers.filter((u: User) => u.plan === "free").length;
 
-    const totalViews = allStories.reduce((acc, s) => acc + s.views, 0);
+    const totalViews = allStories.reduce((acc: number, s: LoveStory) => acc + s.views, 0);
 
     return {
       success: true,
@@ -329,7 +330,7 @@ export async function getAdminStatsAction() {
         ultraCount,
         freeCount,
         totalViews,
-        stories: allStories.map(s => ({
+        stories: allStories.map((s: LoveStory) => ({
           id: s.id,
           slug: s.slug,
           partnerA: s.partnerA,
@@ -338,7 +339,7 @@ export async function getAdminStatsAction() {
           theme: s.theme,
           createdAt: s.createdAt
         })),
-        users: allUsers.map(u => ({
+        users: allUsers.map((u: User) => ({
           id: u.id,
           email: u.email,
           name: u.name,
